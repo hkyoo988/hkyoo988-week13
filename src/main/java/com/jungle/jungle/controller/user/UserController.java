@@ -1,6 +1,7 @@
 package com.jungle.jungle.controller.user;
 
 import com.jungle.jungle.dto.LoginRequestDto;
+import com.jungle.jungle.dto.LoginResponseDto;
 import com.jungle.jungle.dto.SignupRequestDto;
 import com.jungle.jungle.entity.user.User;
 import com.jungle.jungle.jwt.JwtUtil;
@@ -16,7 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Optional;
 
-@Controller
+
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
 public class UserController {
@@ -45,12 +47,16 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
         Optional<User> user = userService.login(loginRequestDto, response);
         if (user.isPresent()) {
-            return ResponseEntity.ok("Login successful");
+            User loggedUser = user.get();
+            String token = jwtUtil.createToken(loggedUser.getUsername(), loggedUser.getRole());
+            response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+            LoginResponseDto loginResponseDto = LoginResponseDto.of(loggedUser, token);
+            return ResponseEntity.ok(loginResponseDto);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 }
