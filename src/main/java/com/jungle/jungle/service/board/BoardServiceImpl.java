@@ -42,9 +42,8 @@ public class BoardServiceImpl implements BoardService {
                     () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
             );
 
-            Board board = boardRepository.saveAndFlush(requestDto.toEntity(user));
-            Board saveBoard = boardRepository.save(board);
-            return BoardResponseDto.of(saveBoard);
+            Board board = boardRepository.save(requestDto.toEntity(user));
+            return BoardResponseDto.of(board);
         } else {
             throw new IllegalArgumentException("Token invalid");
         }

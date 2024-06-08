@@ -6,6 +6,7 @@ import com.jungle.jungle.dto.SuccessResponseDto;
 import com.jungle.jungle.service.board.BoardService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,39 +14,38 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/posts")
 public class BoardController {
 
     private final BoardService boardService;
 
     @GetMapping("/api/posts")
-    public List<BoardResponseDto> getPosts() {
-        return boardService.getPosts();
+    public ResponseEntity<List<BoardResponseDto>> getPosts() {
+        List<BoardResponseDto> posts = boardService.getPosts();
+        return ResponseEntity.ok(posts);
     }
 
-//    @GetMapping("/api/posts")
-//    public ResponseEntity<List<BoardResponseDto>> getPosts() {
-//        return ResponseEntity.ok()
-//                .headers(header)
-//                .body(body);
-//    }
-
-    @PostMapping("/api/posts")
-    public BoardResponseDto createPost(@RequestBody BoardRequestDto requestDto, HttpServletRequest request) {
-        return boardService.createPost(requestDto, request);
+    @PostMapping
+    public ResponseEntity<BoardResponseDto> createPost(@RequestBody BoardRequestDto requestDto, HttpServletRequest request) {
+        BoardResponseDto responseDto = boardService.createPost(requestDto, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
-    @GetMapping("/api/posts/{id}")
-    public BoardResponseDto getPost(@PathVariable("id") Long id) {
-        return boardService.getPost(id);
+    @GetMapping("/{id}")
+    public ResponseEntity<BoardResponseDto> getPost(@PathVariable Long id) {
+        BoardResponseDto responseDto = boardService.getPost(id);
+        return ResponseEntity.ok(responseDto);
     }
 
-    @PutMapping("/api/posts/{id}")
-    public BoardResponseDto updatePost(@PathVariable("id") Long id, @RequestBody BoardRequestDto requestDto, HttpServletRequest request) throws Exception {
-        return boardService.updatePost(id, requestDto, request);
+    @PutMapping("/{id}")
+    public ResponseEntity<BoardResponseDto> updatePost(@PathVariable Long id, @RequestBody BoardRequestDto requestDto, HttpServletRequest request) throws Exception {
+        BoardResponseDto responseDto = boardService.updatePost(id, requestDto, request);
+        return ResponseEntity.ok(responseDto);
     }
 
-    @DeleteMapping("/api/posts/{id}")
-    public SuccessResponseDto deletePost(@PathVariable("id") Long id, HttpServletRequest request) throws Exception {
-        return boardService.deletePost(id, request);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<SuccessResponseDto> deletePost(@PathVariable Long id, HttpServletRequest request) throws Exception {
+        SuccessResponseDto responseDto = boardService.deletePost(id, request);
+        return ResponseEntity.ok(responseDto);
     }
 }
