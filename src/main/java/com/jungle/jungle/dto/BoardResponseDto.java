@@ -1,12 +1,14 @@
 package com.jungle.jungle.dto;
 
 import com.jungle.jungle.entity.board.Board;
+import com.jungle.jungle.entity.comment.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -17,6 +19,7 @@ public class BoardResponseDto {
     private String title;
     private String content;
     private String author;
+    private List<Comment> comments;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -26,6 +29,7 @@ public class BoardResponseDto {
                 .title(entity.getTitle())
                 .content(entity.getContent())
                 .author(entity.getAuthor())
+                .comments(entity.getComments())
                 .createdAt(entity.getCreatedAt())
                 .modifiedAt(entity.getModifiedAt())
                 .build();
