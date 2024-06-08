@@ -4,6 +4,7 @@ import com.jungle.jungle.dto.BoardRequestDto;
 import com.jungle.jungle.dto.BoardResponseDto;
 import com.jungle.jungle.dto.SuccessResponseDto;
 import com.jungle.jungle.service.board.BoardService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +30,8 @@ public class BoardController {
 //    }
 
     @PostMapping("/api/posts")
-    public BoardResponseDto createPost(@RequestBody BoardRequestDto requestDto) {
-        return boardService.createPost(requestDto);
+    public BoardResponseDto createPost(@RequestBody BoardRequestDto requestDto, HttpServletRequest request) {
+        return boardService.createPost(requestDto, request);
     }
 
     @GetMapping("/api/posts/{id}")
@@ -39,12 +40,12 @@ public class BoardController {
     }
 
     @PutMapping("/api/posts/{id}")
-    public BoardResponseDto updatePost(@PathVariable("id") Long id, @RequestBody BoardRequestDto requestDto) throws Exception {
-        return boardService.updatePost(id, requestDto);
+    public BoardResponseDto updatePost(@PathVariable("id") Long id, @RequestBody BoardRequestDto requestDto, HttpServletRequest request) throws Exception {
+        return boardService.updatePost(id, requestDto, request);
     }
 
     @DeleteMapping("/api/posts/{id}")
-    public SuccessResponseDto deletePost(@PathVariable("id") Long id, @RequestBody BoardRequestDto requestDto) throws Exception {
-        return boardService.deletePost(id, requestDto);
+    public SuccessResponseDto deletePost(@PathVariable("id") Long id, HttpServletRequest request) throws Exception {
+        return boardService.deletePost(id, request);
     }
 }

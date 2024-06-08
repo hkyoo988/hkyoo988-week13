@@ -49,7 +49,6 @@ public class UserServiceImpl implements UserService {
     public Optional<User> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         Optional<User> user = userRepository.findByUsername(loginRequestDto.getUsername());
         if (user.isPresent() && user.get().getPassword().equals(loginRequestDto.getPassword())) {
-            response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.get().getUsername(), user.get().getRole()));
             return user;
         } else {
             return Optional.empty();
