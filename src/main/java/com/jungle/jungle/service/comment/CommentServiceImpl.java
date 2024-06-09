@@ -7,6 +7,7 @@ import com.jungle.jungle.dto.SuccessResponseDto;
 import com.jungle.jungle.entity.board.Board;
 import com.jungle.jungle.entity.comment.Comment;
 import com.jungle.jungle.entity.user.User;
+import com.jungle.jungle.entity.user.UserRoleEnum;
 import com.jungle.jungle.repository.board.BoardRepository;
 import com.jungle.jungle.repository.comment.CommentRepository;
 import com.jungle.jungle.repository.user.UserRepository;
@@ -20,9 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.jungle.jungle.jwt.JwtUtil.AUTHORIZATION_HEADER;
+
 @RequiredArgsConstructor
 @Service
-public class CommentServiceImpl {
+public class CommentServiceImpl implements CommentService{
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
@@ -44,7 +47,16 @@ public class CommentServiceImpl {
             );
 
             Optional<Board> board = boardRepository.findById(id);
-            Comment comment = commentRepository.save(commentRequestDto.toEntity(user, board.get()));
+            Comment temp = commentRequestDto.toEntity(user, board.get());
+            System.out.println("===== Debug: Comment Request DTO =====");
+            System.out.println(commentRequestDto.getContent());
+            System.out.println("======================================");
+
+            System.out.println("===== Debug: Comment Entity =====");
+            System.out.println(temp.toString());
+            System.out.println("=================================");
+
+            Comment comment = commentRepository.save(temp);
             return CommentResponseDto.of(comment);
         } else {
             throw new IllegalArgumentException("Token invalid");
@@ -78,7 +90,11 @@ public class CommentServiceImpl {
             );
 
             if (!comment.getUser().getUsername().equals(claims.getSubject())) {
-                throw new IllegalAccessException("댓글 작성자만 수정할 수 있습니다.");
+                String roleString = claims.get(AUTHORIZATION_HEADER, String.class);
+                UserRoleEnum role = UserRoleEnum.valueOf(roleString);
+                if (role != UserRoleEnum.ADMIN) {
+                    throw new IllegalAccessException("게시글 작성자만 수정할 수 있습니다.");
+                }
             }
 
             comment.update(commentUpdateDto);
@@ -105,7 +121,11 @@ public class CommentServiceImpl {
             );
 
             if (!comment.getUser().getUsername().equals(claims.getSubject())) {
-                throw new IllegalAccessException("댓글 작성자만 삭제할 수 있습니다.");
+                String roleString = claims.get(AUTHORIZATION_HEADER, String.class);
+                UserRoleEnum role = UserRoleEnum.valueOf(roleString);
+                if (role != UserRoleEnum.ADMIN) {
+                    throw new IllegalAccessException("게시글 작성자만 수정할 수 있습니다.");
+                }
             }
 
             commentRepository.deleteById(id);

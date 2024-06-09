@@ -14,13 +14,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CommentResponseDto {
     private Long id;
-    private String comment;
+    private String content;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
     public static CommentResponseDto of(Comment comment) {
         return CommentResponseDto.builder()
-                .comment(comment.getComment())
+                .id(comment.getId())
+                .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
                 .modifiedAt(comment.getModifiedAt())
                 .build();

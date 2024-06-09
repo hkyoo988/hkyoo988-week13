@@ -11,11 +11,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
+@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class Comment extends Timestamped {
 
     @Id
@@ -23,17 +23,26 @@ public class Comment extends Timestamped {
     private Long id;
 
     @Column(nullable = false)
-    private String comment;
+    private String content;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "board_id")
     private Board board;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
     private User user;
 
     public void update(CommentUpdateDto commentUpdateDto) {
-        this.comment = commentUpdateDto.getComment();
+        this.content = commentUpdateDto.getContent();
+    }
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", user=" + (user != null ? user.getUsername() : "null") +
+                ", board=" + (board != null ? board.getId() : "null") +
+                ", comment='" + content + '\'' +
+                '}';
     }
 }
