@@ -1,6 +1,5 @@
 package com.jungle.jungle.entity.comment;
 
-import com.jungle.jungle.dto.CommentResponseDto;
 import com.jungle.jungle.dto.CommentUpdateDto;
 import com.jungle.jungle.entity.board.Board;
 import com.jungle.jungle.entity.common.Timestamped;
@@ -10,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
+
 
 @Builder
 @AllArgsConstructor
@@ -23,7 +22,7 @@ public class Comment extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(nullable = false)
     private String comment;
 
     @ManyToOne
