@@ -5,6 +5,7 @@ import com.jungle.jungle.dto.BoardResponseDto;
 import com.jungle.jungle.dto.SuccessResponseDto;
 import com.jungle.jungle.entity.board.Board;
 import com.jungle.jungle.entity.user.User;
+import com.jungle.jungle.entity.user.UserRoleEnum;
 import com.jungle.jungle.jwt.JwtUtil;
 import com.jungle.jungle.repository.board.BoardRepository;
 import com.jungle.jungle.repository.user.UserRepository;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.jungle.jungle.jwt.JwtUtil.AUTHORIZATION_HEADER;
 
 @Service
 @RequiredArgsConstructor
@@ -69,7 +72,11 @@ public class BoardServiceImpl implements BoardService {
             );
 
             if (!board.getUser().getUsername().equals(claims.getSubject())) {
-                throw new IllegalAccessException("게시글 작성자만 수정할 수 있습니다.");
+                String roleString = claims.get(AUTHORIZATION_HEADER, String.class);
+                UserRoleEnum role = UserRoleEnum.valueOf(roleString);
+                if (role != UserRoleEnum.ADMIN) {
+                    throw new IllegalAccessException("게시글 작성자만 수정할 수 있습니다.");
+                }
             }
 
             board.update(requestDto);
@@ -92,7 +99,11 @@ public class BoardServiceImpl implements BoardService {
             );
 
             if(!board.getUser().getUsername().equals(claims.getSubject())) {
-                throw new IllegalAccessException("게시글 작성자만 삭제할 수 있습니다.");
+                String roleString = claims.get(AUTHORIZATION_HEADER, String.class);
+                UserRoleEnum role = UserRoleEnum.valueOf(roleString);
+                if (role != UserRoleEnum.ADMIN) {
+                    throw new IllegalAccessException("게시글 작성자만 수정할 수 있습니다.");
+                }
             }
 
             boardRepository.deleteById(id);
