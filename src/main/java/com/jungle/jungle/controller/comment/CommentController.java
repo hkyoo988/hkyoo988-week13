@@ -4,8 +4,7 @@ import com.jungle.jungle.dto.CommentRequestDto;
 import com.jungle.jungle.dto.CommentResponseDto;
 import com.jungle.jungle.dto.CommentUpdateDto;
 import com.jungle.jungle.dto.SuccessResponseDto;
-import com.jungle.jungle.entity.comment.Comment;
-import com.jungle.jungle.service.comment.CommentService;
+import com.jungle.jungle.service.comment.CommentServiceImpl;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api")
 public class CommentController {
 
-    private final CommentService commentService;
+    private final CommentServiceImpl commentService;
 
     @PostMapping("/posts/{id}/comments")
     public ResponseEntity<CommentResponseDto> save(@PathVariable("id") Long id, @RequestBody CommentRequestDto commentRequestDto, HttpServletRequest request) {
