@@ -32,9 +32,6 @@ public class Board extends Timestamped {
     @Column(nullable = false)
     private String author;
 
-    @Column(nullable = false)
-    private String password;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -47,7 +44,6 @@ public class Board extends Timestamped {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.author = requestDto.getAuthor();
-        this.password = requestDto.getPassword();
     }
 
 }

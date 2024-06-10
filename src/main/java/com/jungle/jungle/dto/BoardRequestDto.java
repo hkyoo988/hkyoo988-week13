@@ -19,15 +19,12 @@ public class BoardRequestDto {
     private String content;
     @NotBlank
     private String author;
-    @NotBlank
-    private String password;
 
     public Board toEntity(User user) {
         return Board.builder()
                 .title(this.title)
                 .content(this.content)
                 .author(this.author)
-                .password(this.password)
                 .user(user)
                 .build();
     }
