@@ -6,6 +6,8 @@ import com.jungle.jungle.dto.SuccessResponseDto;
 import com.jungle.jungle.entity.board.Board;
 import com.jungle.jungle.entity.user.User;
 import com.jungle.jungle.entity.user.UserRoleEnum;
+import com.jungle.jungle.exception.CustomException;
+import com.jungle.jungle.exception.ErrorCode;
 import com.jungle.jungle.jwt.JwtUtil;
 import com.jungle.jungle.repository.board.BoardRepository;
 import com.jungle.jungle.repository.user.UserRepository;
@@ -42,20 +44,20 @@ public class BoardServiceImpl implements BoardService {
             claims = jwtUtil.getUserInfoFromToken(token);
 
             User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+                    () -> new CustomException(ErrorCode.USERNAME_NOT_FOUND)
             );
 
             Board board = boardRepository.save(requestDto.toEntity(user));
             return BoardResponseDto.of(board);
         } else {
-            throw new IllegalArgumentException("Token invalid");
+            throw new CustomException(ErrorCode.TOKEN_INVALID);
         }
     }
 
     @Transactional
     public BoardResponseDto getPost(Long id) {
         return boardRepository.findById(id).map(BoardResponseDto::of).orElseThrow(
-                () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
+                () -> new CustomException(ErrorCode.INVALID_PARAMETER)
         );
     }
 
@@ -68,7 +70,7 @@ public class BoardServiceImpl implements BoardService {
             claims = jwtUtil.getUserInfoFromToken(token);
 
             Board board = boardRepository.findById(id).orElseThrow(
-                    () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
+                    () -> new CustomException(ErrorCode.INVALID_PARAMETER)
             );
 
             if (!board.getUser().getUsername().equals(claims.getSubject())) {
@@ -82,7 +84,7 @@ public class BoardServiceImpl implements BoardService {
             board.update(requestDto);
             return BoardResponseDto.of(board);
         } else {
-            throw new IllegalArgumentException("Token invalid");
+            throw new CustomException(ErrorCode.TOKEN_INVALID);
         }
     }
 
@@ -95,7 +97,7 @@ public class BoardServiceImpl implements BoardService {
             claims = jwtUtil.getUserInfoFromToken(token);
 
             Board board = boardRepository.findById(id).orElseThrow(
-                    () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
+                    () -> new CustomException(ErrorCode.INVALID_PARAMETER)
             );
 
             if(!board.getUser().getUsername().equals(claims.getSubject())) {
@@ -109,7 +111,7 @@ public class BoardServiceImpl implements BoardService {
             boardRepository.deleteById(id);
             return new SuccessResponseDto(true);
         } else {
-            throw new IllegalArgumentException("Token invalid");
+            throw new CustomException(ErrorCode.TOKEN_INVALID);
         }
     }
 }

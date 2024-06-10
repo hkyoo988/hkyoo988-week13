@@ -5,14 +5,14 @@ import com.jungle.jungle.dto.LoginRequestDto;
 import com.jungle.jungle.dto.LoginResponseDto;
 import com.jungle.jungle.dto.SignupRequestDto;
 import com.jungle.jungle.entity.user.User;
+import com.jungle.jungle.exception.CustomException;
+import com.jungle.jungle.exception.ErrorCode;
 import com.jungle.jungle.jwt.JwtUtil;
 import com.jungle.jungle.service.user.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -41,11 +41,10 @@ public class UserController {
     public ResponseEntity<EnvelopeResponseDto<Object>> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
         Optional<User> user = userService.signup(signupRequestDto);
         if (user.isPresent()) {
-            EnvelopeResponseDto<Object> response = new EnvelopeResponseDto<>(null, "success", "Signup successful");
+            EnvelopeResponseDto<Object> response = new EnvelopeResponseDto<>("success", "Signup successful", null);
             return ResponseEntity.ok(response);
         } else {
-            EnvelopeResponseDto<Object> response = new EnvelopeResponseDto<>(null, "error", "Username already exists");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            throw new CustomException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }
     }
 
@@ -57,11 +56,10 @@ public class UserController {
             String token = jwtUtil.createToken(loggedUser.getUsername(), loggedUser.getRole());
             response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
             LoginResponseDto loginResponseDto = LoginResponseDto.of(loggedUser, token);
-            EnvelopeResponseDto<LoginResponseDto> responseDto = new EnvelopeResponseDto<>(loginResponseDto, "success", "Login successful");
+            EnvelopeResponseDto<LoginResponseDto> responseDto = new EnvelopeResponseDto<>("success", "Login successful", loginResponseDto);
             return ResponseEntity.ok(responseDto);
         } else {
-            EnvelopeResponseDto<LoginResponseDto> responseDto = new EnvelopeResponseDto<>(null, "error", "Invalid credentials");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDto);
+            throw new CustomException(ErrorCode.USERNAME_NOT_FOUND);
         }
     }
 }

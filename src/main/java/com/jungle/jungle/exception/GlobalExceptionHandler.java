@@ -7,6 +7,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,33 +25,48 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
-        return buildErrorResponse(ex, ex.getMessage(), HttpStatus.valueOf(statusCode.value()), request);
+    protected ResponseEntity<Object> handleExceptionInternal(@NonNull Exception ex, @Nullable Object body, @NonNull HttpHeaders headers,
+                                                             @NonNull HttpStatusCode statusCode, @NonNull WebRequest request) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.valueOf(statusCode.value()));
     }
 
-    private ResponseEntity<Object> buildErrorResponse(Exception ex, String message, HttpStatus httpStatus, WebRequest request) {
+    private ResponseEntity<Object> buildErrorResponse(String message, HttpStatus httpStatus) {
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(httpStatus.value(), message, LocalDateTime.now());
         return ResponseEntity.status(httpStatus).body(errorResponseDto);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.error("Invalid argument", ex);
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalAccessException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleIllegalAccessException(IllegalAccessException ex) {
+        log.error("Invalid argument", ex);
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(CustomException.class)
     @Hidden
-    public ResponseEntity<Object> handleCustomException(CustomException ex, WebRequest request) {
-        return buildErrorResponse(ex, ex.getMessage(), HttpStatus.BAD_REQUEST, request);
+    public ResponseEntity<Object> handleCustomException(CustomException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     @Hidden
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
         log.error("Access denied", ex);
-        return buildErrorResponse(ex, "Access denied", HttpStatus.FORBIDDEN, request);
+        return buildErrorResponse("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @Override
     @Hidden
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex, @NonNull HttpHeaders headers, @NonNull HttpStatusCode statusCode, @NonNull WebRequest request) {
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(HttpStatus.UNPROCESSABLE_ENTITY.value(), "Validation error. Check 'error field for details", LocalDateTime.now());
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             errorResponseDto.addValidationError(fieldError.getField(), fieldError.getDefaultMessage());
@@ -60,8 +77,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     @Hidden
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<Object> handleAllUncaughtException(Exception ex, WebRequest request) {
+    public ResponseEntity<Object> handleAllUncaughtException(Exception ex) {
         log.error("Internal error occurred", ex);
-        return buildErrorResponse(ex, ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+        return buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

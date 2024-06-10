@@ -1,9 +1,6 @@
 package com.jungle.jungle.controller.comment;
 
-import com.jungle.jungle.dto.CommentRequestDto;
-import com.jungle.jungle.dto.CommentResponseDto;
-import com.jungle.jungle.dto.CommentUpdateDto;
-import com.jungle.jungle.dto.SuccessResponseDto;
+import com.jungle.jungle.dto.*;
 import com.jungle.jungle.service.comment.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -20,24 +17,24 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/posts/{id}/comments")
-    public ResponseEntity<CommentResponseDto> save(@PathVariable Long id, @Valid @RequestBody CommentRequestDto requestDto, HttpServletRequest request) {
+    public ResponseEntity<EnvelopeResponseDto<CommentResponseDto>> save(@PathVariable Long id, @Valid @RequestBody CommentRequestDto requestDto, HttpServletRequest request) {
         CommentResponseDto commentResponseDto = commentService.save(id, requestDto, request);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(commentResponseDto);
+        EnvelopeResponseDto<CommentResponseDto> response = new EnvelopeResponseDto<>("success", "Post created successfully", commentResponseDto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-//    @GetMapping("/posts/{id}/comments")
-//    public L
-
     @PutMapping({"/posts/{postId}/comments/{id}"})
-    public ResponseEntity<CommentResponseDto> update(@PathVariable("postId") Long postId, @PathVariable("id") Long id, @RequestBody CommentUpdateDto commentUpdateDto, HttpServletRequest request) throws Exception {
+    public ResponseEntity<EnvelopeResponseDto<CommentResponseDto>> update(@PathVariable("postId") Long postId, @PathVariable("id") Long id, @RequestBody CommentUpdateDto commentUpdateDto, HttpServletRequest request) throws Exception {
         CommentResponseDto commentResponseDto = commentService.update(postId, id, commentUpdateDto, request);
-        return ResponseEntity.status(HttpStatus.OK).body(commentResponseDto);
+        EnvelopeResponseDto<CommentResponseDto> response = new EnvelopeResponseDto<>("success", "Post created successfully", commentResponseDto);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/posts/{postId}/comments/{id}")
-    public ResponseEntity<SuccessResponseDto> delete(@PathVariable("postId") Long postId, @PathVariable("id") Long id, HttpServletRequest request) throws Exception {
+    public ResponseEntity<EnvelopeResponseDto<SuccessResponseDto>> delete(@PathVariable("postId") Long postId, @PathVariable("id") Long id, HttpServletRequest request) throws Exception {
         SuccessResponseDto successResponseDto = commentService.delete(postId, id, request);
-        return ResponseEntity.ok(successResponseDto);
+        EnvelopeResponseDto<SuccessResponseDto> response = new EnvelopeResponseDto<>("success", "Post deleted successfully", successResponseDto);
+        return ResponseEntity.ok(response);
     }
+
 }
