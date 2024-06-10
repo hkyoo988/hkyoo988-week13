@@ -8,6 +8,8 @@ import com.jungle.jungle.entity.board.Board;
 import com.jungle.jungle.entity.comment.Comment;
 import com.jungle.jungle.entity.user.User;
 import com.jungle.jungle.entity.user.UserRoleEnum;
+import com.jungle.jungle.exception.CustomException;
+import com.jungle.jungle.exception.ErrorCode;
 import com.jungle.jungle.repository.board.BoardRepository;
 import com.jungle.jungle.repository.comment.CommentRepository;
 import com.jungle.jungle.repository.user.UserRepository;
@@ -43,7 +45,7 @@ public class CommentServiceImpl implements CommentService{
             claims = jwtUtil.getUserInfoFromToken(token);
 
             User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+                    () -> new CustomException(ErrorCode.USERNAME_NOT_FOUND)
             );
 
             Optional<Board> board = boardRepository.findById(id);
@@ -59,7 +61,7 @@ public class CommentServiceImpl implements CommentService{
             Comment comment = commentRepository.save(temp);
             return CommentResponseDto.of(comment);
         } else {
-            throw new IllegalArgumentException("Token invalid");
+            throw new CustomException(ErrorCode.TOKEN_INVALID);
         }
     }
 
@@ -82,11 +84,11 @@ public class CommentServiceImpl implements CommentService{
             claims = jwtUtil.getUserInfoFromToken(token);
 
             User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+                    () -> new CustomException(ErrorCode.USERNAME_NOT_FOUND)
             );
 
             Comment comment = (Comment) commentRepository.findByBoard_IdAndId(postId, id).orElseThrow(
-                    () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
+                    () -> new CustomException(ErrorCode.INVALID_PARAMETER)
             );
 
             if (!comment.getUser().getUsername().equals(claims.getSubject())) {
@@ -100,7 +102,7 @@ public class CommentServiceImpl implements CommentService{
             comment.update(commentUpdateDto);
             return CommentResponseDto.of(comment);
         } else {
-            throw new IllegalArgumentException("Token invalid");
+            throw new CustomException(ErrorCode.TOKEN_INVALID);
         }
     }
 
@@ -113,11 +115,11 @@ public class CommentServiceImpl implements CommentService{
             claims = jwtUtil.getUserInfoFromToken(token);
 
             User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    () -> new IllegalArgumentException("사용자가 존재하지 않습니다.")
+                    () -> new CustomException(ErrorCode.USERNAME_NOT_FOUND)
             );
 
             Comment comment = (Comment) commentRepository.findByBoard_IdAndId(postId, id).orElseThrow(
-                    () -> new IllegalArgumentException("아이디가 존재하지 않습니다.")
+                    () -> new CustomException(ErrorCode.INVALID_PARAMETER)
             );
 
             if (!comment.getUser().getUsername().equals(claims.getSubject())) {
@@ -131,7 +133,7 @@ public class CommentServiceImpl implements CommentService{
             commentRepository.deleteById(id);
             return new SuccessResponseDto(true);
         } else {
-            throw new IllegalArgumentException("Token invalid");
+            throw new CustomException(ErrorCode.TOKEN_INVALID);
         }
     }
 }

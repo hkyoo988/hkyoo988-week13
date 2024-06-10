@@ -1,7 +1,6 @@
 package com.jungle.jungle.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.jungle.jungle.exception.ErrorCode;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,7 +15,6 @@ public class ErrorResponseDto {
     private final int status;
     private final String message;
     private final LocalDateTime time;
-//    private String stackTrace;
     private List<ValidationError> validError;
 
     @Data

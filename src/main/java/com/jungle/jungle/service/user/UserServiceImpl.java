@@ -4,7 +4,8 @@ import com.jungle.jungle.dto.LoginRequestDto;
 import com.jungle.jungle.dto.SignupRequestDto;
 import com.jungle.jungle.entity.user.User;
 import com.jungle.jungle.entity.user.UserRoleEnum;
-import com.jungle.jungle.jwt.JwtUtil;
+import com.jungle.jungle.exception.CustomException;
+import com.jungle.jungle.exception.ErrorCode;
 import com.jungle.jungle.repository.user.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,18 +22,16 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private static final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
-    private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public Optional<User> signup(SignupRequestDto signupRequestDto) {
         String username = signupRequestDto.getUsername();
-        String password = signupRequestDto.getPassword();
         String email = signupRequestDto.getEmail();
 
         Optional<User> found = userRepository.findByUsername(username);
         if (found.isPresent()) {
-            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
+            throw new CustomException(ErrorCode.USERNAME_ALREADY_EXISTS);
         }
 
         UserRoleEnum role = UserRoleEnum.USER;
@@ -42,7 +41,7 @@ public class UserServiceImpl implements UserService {
             }
             role = UserRoleEnum.ADMIN;
         }
-        password = passwordEncoder.encode(signupRequestDto.getPassword());
+        String password = passwordEncoder.encode(signupRequestDto.getPassword());
         User user = new User(username, password, email, role);
         userRepository.save(user);
         return Optional.of(user);

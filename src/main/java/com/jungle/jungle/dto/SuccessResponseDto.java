@@ -1,12 +1,4 @@
 package com.jungle.jungle.dto;
 
-import lombok.Getter;
-
-@Getter
-public class SuccessResponseDto {
-    private boolean success;
-
-    public SuccessResponseDto(boolean success) {
-        this.success = success;
-    }
+public record SuccessResponseDto(boolean success) {
 }
