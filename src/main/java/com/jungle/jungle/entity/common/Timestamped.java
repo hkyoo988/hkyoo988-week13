@@ -1,4 +1,4 @@
-package com.jungle.jungle.entity.board;
+package com.jungle.jungle.entity.common;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

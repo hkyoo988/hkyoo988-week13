@@ -15,7 +15,7 @@ public class SignupRequestDto {
     private String username;
 
     @Size(min = 8, max = 15, message = "Password must be between 8 and 15 characters")
-    @Pattern(regexp = "^[a-zA-Z0-9]*$", message = "Password must contain only letters and numbers")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,15}$", message = "Password must contain at least one digit, one lowercase letter, one uppercase letter, one special character, and no whitespace")
     private String password;
 
     @Email

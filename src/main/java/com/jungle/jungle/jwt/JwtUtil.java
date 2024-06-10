@@ -22,8 +22,6 @@ import java.util.Date;
 public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
-    public static final String AUTHORIZATION_KEY = "auth";
-
     public static final String BEARER_PREFIX = "Bearer ";
 
     private static final long TOKEN_TIME = 60*60*1000L;
@@ -53,7 +51,7 @@ public class JwtUtil {
         return BEARER_PREFIX +
                 Jwts.builder()
                 .setSubject(username)
-                .claim(AUTHORIZATION_HEADER, role)
+                .claim(AUTHORIZATION_HEADER, role.name())
                 .setExpiration(new Date(date.getTime() + TOKEN_TIME))
                 .setIssuedAt(date)
                 .signWith(key, signatureAlgorithm)
@@ -66,14 +64,18 @@ public class JwtUtil {
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT signature, 유효하지 않는 서명 입니다.");
+            throw new IllegalArgumentException("Invalid JWT signature, 유효하지 않는 서명 입니다.");
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT token, 만료된 JWT token 입니다.");
+            throw new IllegalArgumentException("Expired JWT token, 만료된 JWT token 입니다.");
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
+            throw new IllegalArgumentException("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
         } catch (IllegalArgumentException e) {
             log.info("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
+            throw new IllegalArgumentException("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
+
         }
-        return false;
     }
 
     public Claims getUserInfoFromToken(String token) {
